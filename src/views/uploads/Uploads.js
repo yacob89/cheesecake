@@ -1,17 +1,32 @@
 import React from "react";
-import { Button, Checkbox, Icon, Table, Header } from 'semantic-ui-react'
+import { Button, Checkbox, Icon, Table, Header } from 'semantic-ui-react';
+import Amplify, { Storage } from 'aws-amplify';
+import awsmobile from '../../aws-exports';
+Amplify.configure(awsmobile);
 
 class Uploads extends React.Component {
   constructor(props) {
     super(props);
     // Declare States
     this.state = {
-      name: ""
+      name: "",
+      filename: ""
     };
     // Declare Methods
+    this.onUpload = this.onUpload.bind(this);
+    this.uploadStart = this.uploadStart.bind(this);
   }
   componentDidMount() {
     
+  }
+  onUpload(event) {
+    console.log('Hey : ',event);
+    this.setState({
+      filename: event.name
+    });
+  }
+  uploadStart(){
+    console.log('Starting Upload Progress');
   }
   render() {
     return (
@@ -27,10 +42,12 @@ class Uploads extends React.Component {
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell />
-          <Table.HeaderCell>Name</Table.HeaderCell>
-          <Table.HeaderCell>Registration Date</Table.HeaderCell>
-          <Table.HeaderCell>E-mail address</Table.HeaderCell>
-          <Table.HeaderCell>Premium Plan</Table.HeaderCell>
+          <Table.HeaderCell>File Name</Table.HeaderCell>
+          <Table.HeaderCell>Geojson Type</Table.HeaderCell>
+          <Table.HeaderCell>View Type</Table.HeaderCell>
+          <Table.HeaderCell>Icon</Table.HeaderCell>
+          <Table.HeaderCell>Edit</Table.HeaderCell>
+          <Table.HeaderCell>Delete</Table.HeaderCell>
         </Table.Row>
       </Table.Header>
   
@@ -39,28 +56,34 @@ class Uploads extends React.Component {
           <Table.Cell collapsing>
             <Checkbox slider />
           </Table.Cell>
-          <Table.Cell>John Lilki</Table.Cell>
-          <Table.Cell>September 14, 2013</Table.Cell>
-          <Table.Cell>jhlilk22@yahoo.com</Table.Cell>
-          <Table.Cell>No</Table.Cell>
+          <Table.Cell>Bandung.geojson</Table.Cell>
+          <Table.Cell>Fill</Table.Cell>
+          <Table.Cell>Standard</Table.Cell>
+          <Table.Cell>museum-15</Table.Cell>
+          <Table.Cell>Edit</Table.Cell>
+          <Table.Cell>Delete</Table.Cell>
         </Table.Row>
         <Table.Row>
           <Table.Cell collapsing>
             <Checkbox slider />
           </Table.Cell>
-          <Table.Cell>Jamie Harington</Table.Cell>
-          <Table.Cell>January 11, 2014</Table.Cell>
-          <Table.Cell>jamieharingonton@yahoo.com</Table.Cell>
-          <Table.Cell>Yes</Table.Cell>
+          <Table.Cell>Jakarta.geojson</Table.Cell>
+          <Table.Cell>Line</Table.Cell>
+          <Table.Cell>Standard</Table.Cell>
+          <Table.Cell>museum-15</Table.Cell>
+          <Table.Cell>Edit</Table.Cell>
+          <Table.Cell>Delete</Table.Cell>
         </Table.Row>
         <Table.Row>
           <Table.Cell collapsing>
             <Checkbox slider />
           </Table.Cell>
-          <Table.Cell>Jill Lewis</Table.Cell>
-          <Table.Cell>May 11, 2014</Table.Cell>
-          <Table.Cell>jilsewris22@yahoo.com</Table.Cell>
-          <Table.Cell>Yes</Table.Cell>
+          <Table.Cell>Semarang.geojson</Table.Cell>
+          <Table.Cell>Point</Table.Cell>
+          <Table.Cell>Standard</Table.Cell>
+          <Table.Cell>museum-15</Table.Cell>
+          <Table.Cell>Edit</Table.Cell>
+          <Table.Cell>Delete</Table.Cell>
         </Table.Row>
       </Table.Body>
   
@@ -69,19 +92,44 @@ class Uploads extends React.Component {
           <Table.HeaderCell />
           <Table.HeaderCell colSpan='4'>
             <Button floated='right' icon labelPosition='left' primary size='small'>
-              <Icon name='user' /> Add User
+              <Icon name='user' /> Add Empty Layer
             </Button>
-            <Button size='small'>Approve</Button>
-            <Button disabled size='small'>
-              Approve All
-            </Button>
+            <UploadButton label='Choose File' onUpload={this.onUpload}></UploadButton>
+            <Button size='small' onClick={this.uploadStart}>Upload</Button>
+            <span>{this.state.filename}</span>
           </Table.HeaderCell>
+          <Table.HeaderCell />
+          <Table.HeaderCell />
         </Table.Row>
       </Table.Footer>
     </Table>
       </div>
     );
   }
+}
+
+function UploadButton({label, onUpload, id}) {
+  let fileInput = null;
+  // If no id was specified, generate a random one
+  const uid = id || Math.random().toString(36).substring(7);
+
+  return (
+    <span>
+      <label htmlFor={uid} className="ui icon button">
+        <i className="upload icon"></i>
+        {label}
+      </label>
+      <input type="file" id={uid}
+        style={{display: "none"}}
+        onChange={() => {
+          onUpload(fileInput.files[0]);
+        }}
+        ref={input => {
+          fileInput = input;
+        }}
+      />
+    </span>
+  );
 }
 
 export default Uploads;

@@ -24,7 +24,6 @@ class Userman extends React.Component {
     // Declare Methods
     this.id = uuid.v1();
     this.onChangeFile = this.onChangeFile.bind(this);
-    this.onUpload = this.onUpload.bind(this);
   }
   componentDidMount() {}
   onChangeFile() {
@@ -33,9 +32,6 @@ class Userman extends React.Component {
     if (this.props.onSelect) {
       this.props.onSelect(file);
     }
-  }
-  onUpload(event) {
-    console.log('Hey : ',event);
   }
   render() {
     return (
@@ -77,18 +73,30 @@ class Userman extends React.Component {
             <Grid.Column width={8}>
               <Form>
                 <Form.Field>
-                  <label>First Name</label>
-                  <input placeholder="First Name" />
+                  <label>Nama Depan</label>
+                  <input placeholder="Nama Depan" />
                 </Form.Field>
                 <Form.Field>
-                  <label>Last Name</label>
-                  <input placeholder="Last Name" />
+                  <label>Nama Belakang</label>
+                  <input placeholder="Nama Belakang" />
                 </Form.Field>
                 <Form.Field>
-                  <Checkbox label="I agree to the Terms and Conditions" />
+                  <label>Alamat</label>
+                  <input placeholder="Alamat" />
                 </Form.Field>
-                <Button type="submit">Submit</Button>
-                <UploadButton label='Upload' onUpload={this.onUpload}></UploadButton>
+                <Form.Field>
+                  <label>Kode Pos</label>
+                  <input placeholder="Kode Pos" />
+                </Form.Field>
+                <Form.Field>
+                  <label>Negara</label>
+                  <input placeholder="Negara" />
+                </Form.Field>
+                <Form.Field>
+                  <label>Organisasi</label>
+                  <input placeholder="Organisasi" />
+                </Form.Field>
+                <Button type="submit">Update</Button>
                 <Message
                   success
                   header="Form Completed"
@@ -112,30 +120,6 @@ class Userman extends React.Component {
       </div>
     );
   }
-}
-
-function UploadButton({label, onUpload, id}) {
-  let fileInput = null;
-  // If no id was specified, generate a random one
-  const uid = id || Math.random().toString(36).substring(7);
-
-  return (
-    <span>
-      <label htmlFor={uid} className="ui icon button">
-        <i className="upload icon"></i>
-        {label}
-      </label>
-      <input type="file" id={uid}
-        style={{display: "none"}}
-        onChange={() => {
-          onUpload(fileInput.files[0]);
-        }}
-        ref={input => {
-          fileInput = input;
-        }}
-      />
-    </span>
-  );
 }
 
 export default Userman;
