@@ -9,7 +9,6 @@ import {
   Form
 } from "semantic-ui-react";
 import Amplify, { Storage } from "aws-amplify";
-import { S3Text } from "aws-amplify-react";
 import awsmobile from "../../aws-exports";
 //Amplify.configure(awsmobile);
 Amplify.configure({

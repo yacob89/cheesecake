@@ -1,11 +1,11 @@
 import React, { Component } from "react";
 import { Grid, Menu, Segment } from "semantic-ui-react";
 import "./App.css";
+import YacobTheme from "./utils/AmplifyTheme";
 import Amplify, { Auth } from "aws-amplify";
-import aws_exports from "./aws-exports";
 import { withAuthenticator } from "aws-amplify-react";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
-import { Authenticator } from "aws-amplify-react";
+import { I18n } from 'aws-amplify';
 
 // View Components
 import Userman from "./views/users/Userman";
@@ -33,6 +33,24 @@ const federated = {
   google_client_id:
     "595089086135-uobb25oa8ra3j92nlqbm79do9ieaaekc.apps.googleusercontent.com"
 };
+
+const authScreenLabels = {
+  en: {
+      'Sign in to your account': 'Selamat Datang di mapid FLOW',
+      'Forget your password': 'Lupa password?',
+      'Username': 'Pengguna',
+      'Enter your username':'Masukkan nama pengguna',
+      'Password': 'Kata Sandi',
+      'Forget your password? ':'Lupa kata sandi? ',
+      'Reset password':'Setel ulang kata sandi',
+      'No account? ': 'Belum punya akun? ',
+      'Create account': 'Buat akun',
+      'Sign In': 'Masuk'
+  }
+};
+
+I18n.setLanguage('en');
+I18n.putVocabularies(authScreenLabels);
 
 // Routes
 const routes = [
@@ -72,10 +90,12 @@ class App extends Component {
     this.state = {
       name: "",
       activeItem: "user",
+      activeMenu: "logout",
       files: []
     };
     this.gotoSignIn = this.gotoSignIn.bind(this);
     this.handleItemClick = this.handleItemClick.bind(this);
+    this.handleMenuClick = this.handleMenuClick.bind(this);
   }
 
   componentDidMount() {
@@ -95,12 +115,39 @@ class App extends Component {
   handleItemClick(e, { name }) {
     this.setState({ activeItem: name });
   }
+  handleMenuClick(e, { name }) {
+    this.setState({ activeMenu: name });
+    Auth.signOut()
+    .then(data => console.log(data))
+    .catch(err => console.log(err));
+  }
 
   render() {
     const { activeItem } = this.state;
+    const { activeMenu } = this.state;
 
     return (
       <div>
+      <Menu pointing secondary>
+          <Menu.Item name='home' active={activeMenu === 'home'} onClick={this.handleMenuClick} />
+          <Menu.Item
+            name='messages'
+            active={activeMenu === 'messages'}
+            onClick={this.handleMenuClick}
+          />
+          <Menu.Item
+            name='friends'
+            active={activeMenu === 'friends'}
+            onClick={this.handleMenuClick}
+          />
+          <Menu.Menu position='right'>
+            <Menu.Item
+              name='logout'
+              active={activeMenu === 'logout'}
+              onClick={this.handleMenuClick}
+            />
+          </Menu.Menu>
+        </Menu>
         <Router>
           <Grid>
             <Grid.Column width={2}>
@@ -172,4 +219,8 @@ class App extends Component {
 }
 
 //export default App;
-export default withAuthenticator(App, true);
+// export default withAuthenticator(App, true);
+//export default withAuthenticator(App, false, [], null, YacobTheme);
+export default withAuthenticator(App, {
+  includeGreetings: false,
+theme: YacobTheme});
