@@ -12,19 +12,19 @@
  */
 
 export const Container = {
-  backgroundImage: "url(https://s3-us-west-2.amazonaws.com/geomapid-assets/img/background-light.png)",
-  marginTop:"-52px"
+  backgroundImage: "url(https://s3-us-west-2.amazonaws.com/geomapid-assets/img/background-light.png)"
+  //marginTop:"-52px"
 };
 
 export const FormContainer = {
   textAlign: "center",
-  marginTop: "20px",
-  margin: "5% auto 50px"
+  marginTop: "0%"
+  //margin: "5% auto 50px"
 };
 
 export const FormSection = {
   height: "100%",
-  marginTop: "20px",
+  marginTop: "15%",
   position: "relative",
   marginBottom: "20px",
   backgroundColor: "#fff",
