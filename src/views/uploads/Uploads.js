@@ -240,11 +240,11 @@ class Uploads extends React.Component {
             </Header.Subheader>
           </Header.Content>
         </Header>
-        <Input icon="search" onChange={
+        <Segment compact><Input id="inputfilename" icon="search" onChange={
           _.debounce(this.handleSearchChange, 500, {
             leading: true
           })
-        } placeholder="Search..." />
+        } placeholder="Search Filename" /></Segment>
 
         <Grid>
           <Grid.Column floated="left" width={14}>
