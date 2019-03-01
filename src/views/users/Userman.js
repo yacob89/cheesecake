@@ -12,6 +12,8 @@ import {
   ButtonProps,
   Label
 } from "semantic-ui-react";
+import axios from "axios";
+import { Auth } from "aws-amplify";
 import * as uuid from "uuid";
 
 class Userman extends React.Component {
@@ -19,19 +21,73 @@ class Userman extends React.Component {
     super(props);
     // Declare States
     this.state = {
-      name: ""
+      name: "",
+      firstname: "",
+      lastname: "",
+      address: "",
+      postcode: "",
+      country: "",
+      organization: "",
+      image_url: "",
+      createdAt: "",
+      username: "",
+      email: ""
     };
     // Declare Methods
     this.id = uuid.v1();
-    this.onChangeFile = this.onChangeFile.bind(this);
+    this.updateProfile = this.updateProfile.bind(this);
+    this.loadUserProfile = this.loadUserProfile.bind(this);
   }
-  componentDidMount() {}
-  onChangeFile() {
-    const fileButton = document.getElementById(this.id);
-    const file = fileButton ? fileButton.files[0] : null;
-    if (this.props.onSelect) {
-      this.props.onSelect(file);
-    }
+  componentDidMount() {
+    Auth.currentSession()
+          .then(data => {
+            this.setState({
+              email: data.idToken.payload.email
+            });
+          })
+          .catch(err => console.log(err));
+    this.loadUserProfile();
+  }
+  loadUserProfile() {
+    axios
+      .get(
+        "https://xlk959w668.execute-api.us-west-2.amazonaws.com/MapidDev/getmapidtable",
+        {
+          params: {
+            username: "mapid"
+          }
+        }
+      )
+      .then(response => {
+        // handle success
+        if (response) {
+          console.log(response);
+          const userdetails = response.data.Item;
+          this.setState({
+            firstname: userdetails.firstname,
+            lastname: userdetails.lastname,
+            address: userdetails.address,
+            postcode: userdetails.postcode,
+            country: userdetails.country,
+            organization: userdetails.organization,
+            createdAt: userdetails.createdAt,
+            username: userdetails.username,
+            image_url: userdetails.image_url
+          });
+        }
+      })
+      .catch(function(error) {
+        // handle error
+        console.log(error);
+        //setTimeout(this.loadUserProfile(),3000);
+      })
+      .then(function() {
+        // always executed
+        //setTimeout(this.loadUserProfile(),3000);
+      });
+  }
+  updateProfile() {
+    console.log('Update Profile');
   }
   render() {
     return (
@@ -52,20 +108,22 @@ class Userman extends React.Component {
           <Grid.Row>
             <Grid.Column width={4}>
               <Card>
-                <Image src="https://react.semantic-ui.com/images/avatar/large/matthew.png" />
+                <Image src={this.state.image_url} />
                 <Card.Content>
-                  <Card.Header>Matthew</Card.Header>
+                  <Card.Header>
+                    {this.state.firstname + " " + this.state.lastname}
+                  </Card.Header>
                   <Card.Meta>
-                    <span className="date">Joined in 2015</span>
+                    <span className="date">Joined {this.state.createdAt}</span>
                   </Card.Meta>
                   <Card.Description>
-                    Matthew is a musician living in Nashville.
+                    Username: {this.state.username}
                   </Card.Description>
                 </Card.Content>
                 <Card.Content extra>
                   <a>
                     <Icon name="user" />
-                    22 Friends
+                    {this.state.email}
                   </a>
                 </Card.Content>
               </Card>
@@ -74,29 +132,47 @@ class Userman extends React.Component {
               <Form>
                 <Form.Field>
                   <label>Nama Depan</label>
-                  <input placeholder="Nama Depan" />
+                  <input
+                    placeholder="Nama Depan"
+                    defaultValue={this.state.firstname}
+                  />
                 </Form.Field>
                 <Form.Field>
                   <label>Nama Belakang</label>
-                  <input placeholder="Nama Belakang" />
+                  <input
+                    placeholder="Nama Belakang"
+                    defaultValue={this.state.lastname}
+                  />
                 </Form.Field>
                 <Form.Field>
                   <label>Alamat</label>
-                  <input placeholder="Alamat" />
+                  <input
+                    placeholder="Alamat"
+                    defaultValue={this.state.address}
+                  />
                 </Form.Field>
                 <Form.Field>
                   <label>Kode Pos</label>
-                  <input placeholder="Kode Pos" />
+                  <input
+                    placeholder="Kode Pos"
+                    defaultValue={this.state.postcode}
+                  />
                 </Form.Field>
                 <Form.Field>
                   <label>Negara</label>
-                  <input placeholder="Negara" />
+                  <input
+                    placeholder="Negara"
+                    defaultValue={this.state.country}
+                  />
                 </Form.Field>
                 <Form.Field>
                   <label>Organisasi</label>
-                  <input placeholder="Organisasi" />
+                  <input
+                    placeholder="Organisasi"
+                    defaultValue={this.state.organization}
+                  />
                 </Form.Field>
-                <Button type="submit">Update</Button>
+                <Button type="submit" onClick={this.updateProfile}>Update</Button>
                 <Message
                   success
                   header="Form Completed"

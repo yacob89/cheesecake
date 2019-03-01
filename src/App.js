@@ -1,16 +1,64 @@
 import React, { Component } from "react";
-import { Grid, Menu, Segment } from "semantic-ui-react";
+import PropTypes from "prop-types";
+import {
+  Grid,
+  Menu,
+  Segment,
+  Image,
+  Sidebar,
+  Icon,
+  Header,
+  Button
+} from "semantic-ui-react";
 import "./App.css";
 import YacobTheme from "./utils/AmplifyTheme";
 import Amplify, { Auth } from "aws-amplify";
 import { withAuthenticator } from "aws-amplify-react";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
-import { I18n } from 'aws-amplify';
+import { I18n } from "aws-amplify";
 
 // View Components
 import Userman from "./views/users/Userman";
 import Uploads from "./views/uploads/Uploads";
 import Sensors from "./views/sensors/Sensors";
+
+const VerticalSidebar = ({ animation, direction, visible }) => (
+  <Sidebar
+    as={Menu}
+    animation={animation}
+    direction={direction}
+    icon="labeled"
+    inverted
+    vertical
+    visible={visible}
+    width="thin"
+  >
+    <Link to="/">
+      <Menu.Item as="a">
+        <Icon name="home" />
+        User
+      </Menu.Item>
+    </Link>
+    <Link to="/uploads">
+      <Menu.Item as="a">
+        <Icon name="gamepad" />
+        Uploads
+      </Menu.Item>
+    </Link>
+    <Link to="/sensors">
+      <Menu.Item as="a">
+        <Icon name="camera" />
+        Sensors
+      </Menu.Item>
+    </Link>
+  </Sidebar>
+);
+
+VerticalSidebar.propTypes = {
+  animation: PropTypes.string,
+  direction: PropTypes.string,
+  visible: PropTypes.bool
+};
 
 // Amplify Configuration
 //Amplify.configure(aws_exports);
@@ -36,20 +84,20 @@ const federated = {
 
 const authScreenLabels = {
   en: {
-      'Sign in to your account': 'Selamat Datang di mapid FLOW',
-      'Forget your password': 'Lupa password?',
-      'Username': 'Pengguna',
-      'Enter your username':'Masukkan nama pengguna',
-      'Password': 'Kata Sandi',
-      'Forget your password? ':'Lupa kata sandi? ',
-      'Reset password':'Setel ulang kata sandi',
-      'No account? ': 'Belum punya akun? ',
-      'Create account': 'Buat akun',
-      'Sign In': 'Masuk'
+    "Sign in to your account": "Selamat Datang di mapid FLOW",
+    "Forget your password": "Lupa password?",
+    Username: "Pengguna",
+    "Enter your username": "Masukkan nama pengguna",
+    Password: "Kata Sandi",
+    "Forget your password? ": "Lupa kata sandi? ",
+    "Reset password": "Setel ulang kata sandi",
+    "No account? ": "Belum punya akun? ",
+    "Create account": "Buat akun",
+    "Sign In": "Masuk"
   }
 };
 
-I18n.setLanguage('en');
+I18n.setLanguage("en");
 I18n.putVocabularies(authScreenLabels);
 
 // Routes
@@ -96,6 +144,10 @@ class App extends Component {
     this.gotoSignIn = this.gotoSignIn.bind(this);
     this.handleItemClick = this.handleItemClick.bind(this);
     this.handleMenuClick = this.handleMenuClick.bind(this);
+    this.handleHideClick = this.handleHideClick.bind(this);
+    this.handleShowClick = this.handleShowClick.bind(this);
+    this.handleSegmentRef = this.handleSegmentRef.bind(this);
+    this.handleSidebarHide = this.handleSidebarHide.bind(this);
   }
 
   componentDidMount() {
@@ -118,62 +170,71 @@ class App extends Component {
   handleMenuClick(e, { name }) {
     this.setState({ activeMenu: name });
     Auth.signOut()
-    .then(data => console.log(data))
-    .catch(err => console.log(err));
+      .then(data => console.log(data))
+      .catch(err => console.log(err));
+  }
+  handleHideClick() {
+    this.setState({ visible: false });
+  }
+  handleShowClick() {
+    this.setState({ visible: true });
+  }
+  handleSegmentRef(c) {
+    this.segmentRef = c;
+  }
+  handleSidebarHide() {
+    this.setState({ visible: false });
   }
 
   render() {
     const { activeItem } = this.state;
     const { activeMenu } = this.state;
+    const { visible } = this.state;
+    const { animation, dimmed, direction } = this.state;
+    const vertical = direction === "bottom" || direction === "top";
+    const imgstyle = {
+      height: "53px",
+      width: "240px"
+    };
+    const segmentstyle = {
+      marginLeft: "-30px",
+      height: "100%"
+    };
+    const sidebarstyle = {
+      backgroundImage:
+        "url(https://s3-us-west-2.amazonaws.com/geomapid-assets/img/sidebar.svg)"
+    };
 
     return (
       <div>
-      <Menu pointing secondary>
-          <Menu.Item name='home' active={activeMenu === 'home'} onClick={this.handleMenuClick} />
-          <Menu.Item
-            name='messages'
-            active={activeMenu === 'messages'}
-            onClick={this.handleMenuClick}
-          />
-          <Menu.Item
-            name='friends'
-            active={activeMenu === 'friends'}
-            onClick={this.handleMenuClick}
-          />
-          <Menu.Menu position='right'>
-            <Menu.Item
-              name='logout'
-              active={activeMenu === 'logout'}
-              onClick={this.handleMenuClick}
-            />
-          </Menu.Menu>
-        </Menu>
         <Router>
-          <Grid>
-            <Grid.Column width={2}>
-              <Menu fluid vertical tabular color="blue">
-                <Link to="/">
-                  <Menu.Item
-                    name="user"
-                    active={activeItem === "user"}
-                    onClick={this.handleItemClick}
-                  />
-                </Link>
-                <Link to="/uploads">
-                  <Menu.Item
-                    name="uploads"
-                    active={activeItem === "uploads"}
-                    onClick={this.handleItemClick}
-                  />
-                </Link>
-                <Link to="/sensors">
-                  <Menu.Item
-                    name="sensors"
-                    active={activeItem === "sensors"}
-                    onClick={this.handleItemClick}
-                  />
-                </Link>
-              </Menu>
+          <div>
+            <Grid>
+              <Grid.Column floated="left" width={8}>
+                <Button.Group>
+                  <Button disabled={visible} onClick={this.handleShowClick}>
+                    Show sidebar
+                  </Button>
+                  <Button disabled={!visible} onClick={this.handleHideClick}>
+                    Hide sidebar
+                  </Button>
+                </Button.Group>
+              </Grid.Column>
+              <Grid.Column floated="right" width={8}>
+                <Button floated="right" basic color="red" onClick={this.handleMenuClick}>
+                  Logout
+                </Button>
+              </Grid.Column>
+            </Grid>
+
+            <Sidebar.Pushable as={Segment}>
+              {vertical ? null : (
+                <VerticalSidebar
+                  animation={animation}
+                  direction={direction}
+                  visible={visible}
+                />
+              )}
               {routes.map((route, index) => (
                 // You can render a <Route> in as many places
                 // as you want in your app. It will render along
@@ -189,29 +250,23 @@ class App extends Component {
                   component={route.sidebar}
                 />
               ))}
-            </Grid.Column>
 
-            <Grid.Column
-              textAlign="left"
-              stretched
-              padded
-              floated="left"
-              width={14}
-            >
-              <Segment textAlign="left" compact color="blue">
-                {routes.map((route, index) => (
-                  // Render more <Route>s with the same paths as
-                  // above, but different components this time.
-                  <Route
-                    key={index}
-                    path={route.path}
-                    exact={route.exact}
-                    component={route.main}
-                  />
-                ))}
-              </Segment>
-            </Grid.Column>
-          </Grid>
+              <Sidebar.Pusher dimmed={dimmed && visible}>
+                <Segment basic>
+                  {routes.map((route, index) => (
+                    // Render more <Route>s with the same paths as
+                    // above, but different components this time.
+                    <Route
+                      key={index}
+                      path={route.path}
+                      exact={route.exact}
+                      component={route.main}
+                    />
+                  ))}
+                </Segment>
+              </Sidebar.Pusher>
+            </Sidebar.Pushable>
+          </div>
         </Router>
       </div>
     );
@@ -223,4 +278,5 @@ class App extends Component {
 //export default withAuthenticator(App, false, [], null, YacobTheme);
 export default withAuthenticator(App, {
   includeGreetings: false,
-theme: YacobTheme});
+  theme: YacobTheme
+});
