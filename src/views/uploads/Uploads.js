@@ -107,6 +107,7 @@ class Uploads extends React.Component {
             updatedAt: fileList[i].updatedAt,
             username: fileList[i].username,
             _id: fileList[i]._id,
+            source: fileList[i].source,
             arrayindex: i
           });
         }
