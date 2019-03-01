@@ -111,7 +111,8 @@ class Uploads extends React.Component {
           });
         }
         this.setState({
-          layerlists: rows
+          layerlists: rows,
+          results:rows
         });
       });
   }
@@ -171,12 +172,12 @@ class Uploads extends React.Component {
   }
   // Handle Table Sorting
   handleSort = clickedColumn => () => {
-    const { column, layerlists, direction } = this.state;
+    const { column, results, direction } = this.state;
 
     if (column !== clickedColumn) {
       this.setState({
         column: clickedColumn,
-        layerlists: _.sortBy(layerlists, [clickedColumn]),
+        results: _.sortBy(results, [clickedColumn]),
         direction: "ascending"
       });
 
@@ -184,7 +185,7 @@ class Uploads extends React.Component {
     }
 
     this.setState({
-      layerlists: layerlists.reverse(),
+      results: results.reverse(),
       direction: direction === "ascending" ? "descending" : "ascending"
     });
   };
@@ -198,18 +199,25 @@ class Uploads extends React.Component {
   handleSearchChange = (e, { value }) => {
     this.setState({ isLoading: true, value });
     var source = this.state.layerlists;
+    if(e.target.value){
+      console.log('Ada input');
+      setTimeout(() => {
+        if (this.state.value.length < 1) return this.resetComponent();
+  
+        const re = new RegExp(_.escapeRegExp(this.state.value), "i");
+        const isMatch = result => re.test(result.filename);
+  
+        this.setState({
+          isLoading: false,
+          results: _.filter(rows, isMatch)
+        });
+      }, 300);
+    }else{
+      console.log('Tidak ada input');
+      this.loadUserLayers();
+    }
 
-    setTimeout(() => {
-      if (this.state.value.length < 1) return this.resetComponent();
-
-      const re = new RegExp(_.escapeRegExp(this.state.value), "i");
-      const isMatch = result => re.test(result.filename);
-
-      this.setState({
-        isLoading: false,
-        results: _.filter(rows, isMatch)
-      });
-    }, 300);
+    
   };
   /* Render JSX Components */
   render() {
@@ -237,13 +245,6 @@ class Uploads extends React.Component {
             leading: true
           })
         } placeholder="Search..." />
-
-        <Segment>
-          <Header>State</Header>
-          <pre style={{ overflowX: "auto" }}>
-            {JSON.stringify(this.state.results, null, 2)}
-          </pre>
-        </Segment>
 
         <Grid>
           <Grid.Column floated="left" width={14}>
@@ -286,7 +287,7 @@ class Uploads extends React.Component {
               </Table.Header>
 
               <Table.Body>
-                {this.state.layerlists.map(i => (
+                {this.state.results.map(i => (
                   <Table.Row>
                     <Table.Cell>
                       <Button
